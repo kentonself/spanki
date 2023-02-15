@@ -7,7 +7,6 @@ import threading
 import requests
 import options
 
-apis = ['mymemory', 'multi-traduction','long-translator']
 #apis = ['mymemory']
 
 def call_api(endpoint, text):
@@ -86,7 +85,7 @@ try:
 
         # Thread each api call
         threads = []
-        for api in  apis:
+        for api in  options.apis:
             x = threading.Thread(target=call_api, args=(api, orig))
             threads.append(x)
             x.start()
@@ -98,7 +97,7 @@ try:
         # iterate through results from each API call and fill up choices list
         found = 0
         choices = []
-        for api in apis:
+        for api in options.apis:
             if xlations[api]:
                 choices.append(xlations[api])
                 found += 1
@@ -134,33 +133,59 @@ try:
         # add user choice to AnkiConnect instance (must be running)
         add = input('Add to anki? ')
         if add.lower() in ['y', 'yes', 't', 'true']:
-            speech = input('Enter Part of Speech: ')
-            gender = input('Enter Gender: ') if speech.lower() in ['n', 'noun'] else  ""
-            ankiact = {
-                "action": "addNote",
-                "version": 6,
-                "params": {
-                    "note": {
-                        "deckName": options.deckname,
-                        "modelName": "Spanish",
-                        "fields": {
-                            "Word": orig,
-                            "Meaning": xlation,
-                            "Part Of Speech": speech,
-                            "Gender": gender
-                        },
-                        "options": {
-                            "allowDuplicate": False,
-                            "duplicateScope": "deck",
-                            "duplicateScopeOptions": {
-                                "deckName": options.deckname,
-                                "checkChildren": False,
-                                "checkAllModels": False
+            if options.note_type != "Basic":
+                speech = input('Enter Part of Speech: ')
+                gender = input('Enter Gender: ') if speech.lower() in ['n', 'noun'] else  ""
+                ankiact = {
+                    "action": "addNote",
+                    "version": 6,
+                    "params": {
+                        "note": {
+                            "deckName": options.deckname,
+                            "modelName": options.note_type,
+                            "fields": {
+                                "Word": orig,
+                                "Meaning": xlation,
+                                "Part Of Speech": speech,
+                                "Gender": gender
+                            },
+                            "options": {
+                                "allowDuplicate": False,
+                                "duplicateScope": "deck",
+                                "duplicateScopeOptions": {
+                                    "deckName": options.deckname,
+                                    "checkChildren": False,
+                                    "checkAllModels": False
+                                }
                             }
                         }
                     }
                 }
-            }
+            else :
+                ankiact = {
+                    "action": "addNote",
+                    "version": 6,
+                    "params": {
+                        "note": {
+                            "deckName": options.deckname,
+                            "modelName": "Basic",
+                            "fields": {
+                                "Front": orig,
+                                "Back": xlation,
+                            },
+                            "options": {
+                                "allowDuplicate": False,
+                                "duplicateScope": "deck",
+                                "duplicateScopeOptions": {
+                                    "deckName": options.deckname,
+                                    "checkChildren": False,
+                                    "checkAllModels": False
+                                }
+                            }
+                        }
+                    }
+                }
+
             ankiresp = requests.post(url = 'http://localhost:8765', json=ankiact, timeout=10)
             print(ankiresp.json())
 except KeyboardInterrupt:
