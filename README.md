@@ -35,6 +35,7 @@ a card and add it to the Anki deck. You can enter the part of speech and gender 
 
 ## Examples
 
+```
 $ ./spanki.py
 Enter word/phrase to translate (or q to quit): almendra
 1 from mymemory: almond
@@ -51,6 +52,7 @@ Enter word/phrase to translate (or q to quit): taladro
 Enter number choice from above or:
  q to skip adding to anki
  c to concatenate choices : 
+```
 
 (Note that for taladro, you can enter 2 or 3 and add a card for drill, 1 to add a card for blue gum borer, or c to add a card with all the definitions into one card. The mymemory API sometimes has unusual translations for words.)
 
