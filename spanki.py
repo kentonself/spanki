@@ -2,12 +2,13 @@
 """ Use Rapid API to translate spanish to english and add to anki
      See https://rapidapi.com/translated/api/mymemory-translation-memory
 """
+import os
 import sys
 import threading
 import requests
-import os
 
 supported_apis = ['mymemory', 'multi-traduction','long-translator']
+# pylint: disable=invalid-name
 
 def call_api(endpoint, text):
     """ Threaded function that makes API call """
@@ -74,12 +75,12 @@ def call_api(endpoint, text):
 
 # check for env before continuing
 envset = True
-if os.environ.get('SPANKI_KEY') == None:
+if os.environ.get('SPANKI_KEY') is None:
     envset = False
     print("Environment Variable SPANKI_KEY must be set to rapidapi key")
     print()
 supported_apis_string = ','.join(supported_apis)
-if os.environ.get('SPANKI_APIS') == None:
+if os.environ.get('SPANKI_APIS') is None:
     envset = False
     print("Environment Variable SPANKI_APIS must be set")
     print(f"SPANKI_APIS is a comma delimited set. Supported apis are {supported_apis_string}")
@@ -92,35 +93,38 @@ else:
             print()
 
 # test for existance of Anki/AnkiConnect and get deckNames
-availdecks = requests.post(url = 'http://localhost:8765', json={"action": "deckNames", "version": 6 }, timeout=10)
+availdecks = requests.post(url = 'http://localhost:8765',\
+                           json={"action": "deckNames", "version": 6 }, \
+                           timeout=10)
 if availdecks.json()['error']:
     envset = False
     print( "Anki may not be running or AnkiConnect may not be installed")
     print()
 deck_name = os.environ.get('SPANKI_DECK_NAME')
-if deck_name == None:
+if deck_name is None:
     envset = False
     print("Environment Variable SPANKI_DECK_NAME must be set to Anki Deck")
-    print("Example: SPANKI_DECK_NAME=Kenton\'s\ Spanish\ Words")
+    print("Example: SPANKI_DECK_NAME=Kenton\\'s\\ Spanish\\ Words")
     print()
 elif deck_name not in availdecks.json()['result']:
     envset = False
     print(f'{deck_name} is not a deck in Anki')
     print()
 lang=os.environ.get('SPANKI_LANG')
-if lang == None:
+if lang is None:
     lang = "es"
 else:
     lang = lang.lower()
 
 note_type = os.environ.get('SPANKI_NOTE_TYPE')
-if note_type == None:
+if note_type is None:
     note_type = "Basic"
     print("Environment variable SPANKI_NOTE_TYPE is not set. Basic will be used.")
 
-sync_on_add = os.environ.get('SPANKI_SYNC_ON_ADD') if os.environ.get('SPANKI_SYNC_ON_ADD') != None else "False"
+sync_on_add = os.environ.get('SPANKI_SYNC_ON_ADD') \
+        if os.environ.get('SPANKI_SYNC_ON_ADD') is not None else "False"
 
-if envset == False:
+if envset is False:
     sys.exit()
 
 # Environment should be good now, and Anki running with AnkiConnect
@@ -182,7 +186,7 @@ try:
             else:
                 xlation = choices[int(choice) - 1]
         else:
-            #All API's translate the same. 
+            #All API's translate the same.
             xlation = choices[0]
 
         # add card to Anki through AnkiConnect
