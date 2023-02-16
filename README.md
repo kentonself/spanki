@@ -13,9 +13,9 @@ create a card in an Anki deck for future recall/study. API calls are threaded fo
 2. An account with rapidapi.com  https://rapidapi.com/
 3. A subscription within rapidapi to one or more Spanish translation API's.
    Currently 3 services are supported, all of which have a free (or "freemium") tier:
-    a. MyMemory Translation Memory: https://rapidapi.com/translated/api/mymemory-translation-memory
-    b. Long Translator: https://rapidapi.com/cloudlabs-dev/api/long-translator 
-    c. Rapid Translate Multi Traduction: https://rapidapi.com/sibaridev/api/rapid-translate-multi-traduction
+    - MyMemory Translation Memory: https://rapidapi.com/translated/api/mymemory-translation-memory
+    - Long Translator: https://rapidapi.com/cloudlabs-dev/api/long-translator 
+    - Rapid Translate Multi Traduction: https://rapidapi.com/sibaridev/api/rapid-translate-multi-traduction
 4. A running instance of Anki
 5. A deck in Anki to add new cards to.
 6. The AnkiConnect Add-In (https://ankiweb.net/shared/info/2055492159)
