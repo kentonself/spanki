@@ -23,6 +23,7 @@ create a card in an Anki deck for future recall/study. API calls are threaded fo
 ## Environment
 
 Spanki uses the following environment variables:
+```
 SPANKI_KEY - Mandatory. The key from rapidapi ("X-RapidAPI-Key") for your subscriptions
 SPANKI_APIS - Mandatory A comma separated list of APIs to check
 SPANKI_DECK_NAME - Mandatory. The deck name in Anki to add cards to.
@@ -31,7 +32,7 @@ SPANKI_SYNC_ON_ADD - Optional. If set (unless set to 0 or False), will sync with
                        (Can add significant time for sync)
 SPANKI_LANG - Optional. Language code to be translated. Ex. "es" for Spanish, "it" for Italian, etc.
                        (Defaults to Spanish. Only tested in Spanish, so YMMV)
-
+```
 Examples:
 ```
 export SPANKI_KEY=0123456789abcdef123456789aabcdef123456789abcdef01
