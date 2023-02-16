@@ -85,6 +85,7 @@ GNU GENERAL PUBLIC LICENSE
 - Add an anki url besides localhost. A little questionable from a security standpoint, but user can assume the risk.
 - Add more API's
 - Look up words in fd-spa-eng dictionary of linux `dict` command
+- Parse the return from API call to AnkiConnect to be cleaner
 	
 ## Contribution
 
