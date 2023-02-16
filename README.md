@@ -18,8 +18,7 @@ create a card in an Anki deck for future recall/study. API calls are threaded fo
   c. Rapid Translate Multi Traduction: https://rapidapi.com/sibaridev/api/rapid-translate-multi-traduction
 4. A running instance of Anki
 5. A deck in Anki to add new cards to.
-6. A card type in Anki that contains the field "Word", "Part of Speech", "Meaning" and "Gender"
-7. The AnkiConnect Add-In (https://ankiweb.net/shared/info/2055492159)
+6. The AnkiConnect Add-In (https://ankiweb.net/shared/info/2055492159)
 
 ## Environment
 
@@ -27,7 +26,7 @@ Spanki uses the following environment variables:
 SPANKI_KEY - Mandatory. The key from rapidapi ("X-RapidAPI-Key") for your subscriptions
 SPANKI_APIS - Mandatory A comma separated list of APIs to check
 SPANKI_DECK_NAME - Mandatory. The deck name in Anki to add cards to.
-SPANKI_NOTE_TYPE - Optional. If set Spanki will add fields for gender and part of speech.
+SPANKI_NOTE_TYPE - Optional. If set Spanki will add fields for gender and part of speech, oherwise wil insert a basic front/back card
 SPANKI_SYNC_ON_ADD - Optional. If set (unless set to 0 or False), will sync with AnkiWeb after each add. 
                        (Can add significant time for sync)
 SPANKI_LANG - Optional. Language code to be translated. Ex. "es" for Spanish, "it" for Italian, etc.
