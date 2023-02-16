@@ -78,16 +78,17 @@ if os.environ.get('SPANKI_KEY') == None:
     envset = False
     print("Environment Variable SPANKI_KEY must be set to rapidapi key")
     print()
+supported_apis_string = ','.join(supported_apis)
 if os.environ.get('SPANKI_APIS') == None:
     envset = False
     print("Environment Variable SPANKI_APIS must be set")
-    print("SPANKI_APIS is a comma delimited set. Supported apis are {supported_apis}")
+    print(f"SPANKI_APIS is a comma delimited set. Supported apis are {supported_apis_string}")
     print()
 else:
     for api in os.environ.get('SPANKI_APIS').split(','):
         if api not in supported_apis:
             envset = False
-            print(f'{api} is not a supported api. Supported apis are {supported_apis}')
+            print(f'{api} is not a supported api. Supported apis are {supported_apis_string}')
             print()
 
 # test for existance of Anki/AnkiConnect and get deckNames
@@ -112,7 +113,9 @@ if lang == None:
 else:
     lang = lang.lower()
 
-if os.environ.get('SPANKI_NOTE_TYPE') == None:
+note_type = os.environ.get('SPANKI_NOTE_TYPE')
+if note_type == None:
+    note_type = "Basic"
     print("Environment variable SPANKI_NOTE_TYPE is not set. Basic will be used.")
 
 sync_on_add = os.environ.get('SPANKI_SYNC_ON_ADD') if os.environ.get('SPANKI_SYNC_ON_ADD') != None else "False"
@@ -120,7 +123,7 @@ sync_on_add = os.environ.get('SPANKI_SYNC_ON_ADD') if os.environ.get('SPANKI_SYN
 if envset == False:
     sys.exit()
 
-# Environment should be good now
+# Environment should be good now, and Anki running with AnkiConnect
 
 try:
     while True:
@@ -157,6 +160,7 @@ try:
             continue
 
         # if more than 1 unique value, give choice to user before adding to anki
+        # (converting the python list to a python set removes dupliates)
         if found > 1 and len(set(choices)) > 1:
             while True:
                 choice = input('Enter number choice from above or:\n' +\
@@ -178,12 +182,13 @@ try:
             else:
                 xlation = choices[int(choice) - 1]
         else:
+            #All API's translate the same. 
             xlation = choices[0]
 
-        # add user choice to AnkiConnect instance (must be running)
+        # add card to Anki through AnkiConnect
         add = input('Add to anki? ')
         if add.lower() in ['y', 'yes', 't', 'true']:
-            if os.environ.get('SPANKI_NOTE_TYPE') != "Basic":
+            if note_type != "Basic":
                 speech = input('Enter Part of Speech: ')
                 gender = input('Enter Gender: ') if speech.lower() in ['n', 'noun'] else  ""
                 ankiact = {
@@ -192,7 +197,7 @@ try:
                     "params": {
                         "note": {
                             "deckName": deck_name,
-                            "modelName": os.environ.get('SPANKI_NOTE_TYPE'),
+                            "modelName": note_type,
                             "fields": {
                                 "Word": orig,
                                 "Meaning": xlation,
@@ -212,6 +217,7 @@ try:
                     }
                 }
             else :
+                #Basic Card type
                 ankiact = {
                     "action": "addNote",
                     "version": 6,
@@ -236,13 +242,19 @@ try:
                     }
                 }
 
+            # Add the card
             ankiresp = requests.post(url = 'http://localhost:8765', json=ankiact, timeout=10)
             print(ankiresp.json())
+
+            # If sync is turned on, sync with AnkiWeb
             if sync_on_add.lower() not in  ['0', 'false']:
                 ankisync = requests.post(url = "http://localhost:8765", \
                         json = { "action": "sync", "version": 6}, timeout=30)
                 print(ankisync.json())
+
 except KeyboardInterrupt:
+
+    # Cntl-C pressed. End the script.
     print()
     print('Exiting. Goodbye!')
     sys.exit()
