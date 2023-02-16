@@ -5,16 +5,16 @@
 import sys
 import threading
 import requests
-import options
+import os
 
-#apis = ['mymemory']
+supported_apis = ['mymemory', 'multi-traduction','long-translator']
 
 def call_api(endpoint, text):
     """ Threaded function that makes API call """
     if endpoint == 'mymemory':
         url  = 'https://translated-mymemory---translation-memory.p.rapidapi.com/get'
-        headers = {'X-RapidAPI-Key': options.rapidapi}
-        params =  {'langpair': 'es|en', 'q': text}
+        headers = {'X-RapidAPI-Key': os.environ.get('SPANKI_KEY')}
+        params =  {'langpair': lang + '|en', 'q': text}
 
         response = requests.get(url=url, timeout = 10, headers = headers, params=params)
         if response.status_code != 200:
@@ -31,14 +31,14 @@ def call_api(endpoint, text):
         url = "https://rapid-translate-multi-traduction.p.rapidapi.com/t"
 
         payload = {
-        	"from": "es",
+        	"from": lang,
         	"to": "en",
         	"e": "",
         	"q": [text]
         }
         headers = {
         	"content-type": "application/json",
-        	"X-RapidAPI-Key": options.rapidapi,
+        	"X-RapidAPI-Key": os.environ.get('SPANKI_KEY'),
         	"X-RapidAPI-Host": "rapid-translate-multi-traduction.p.rapidapi.com"
         }
         response = requests.post(url, json=payload, headers=headers, timeout=10)
@@ -52,13 +52,13 @@ def call_api(endpoint, text):
         url = "https://long-translator.p.rapidapi.com/translate"
 
         payload = {
-                "source_language": "es",
+                "source_language": lang,
                 "target_language": "en",
                 "text": text
                 }
         headers = {
 	        "content-type": "application/x-www-form-urlencoded",
-	        "X-RapidAPI-Key": options.rapidapi,
+	        "X-RapidAPI-Key": os.environ.get('SPANKI_KEY'),
 	        "X-RapidAPI-Host": "long-translator.p.rapidapi.com"
         }
 
@@ -71,6 +71,56 @@ def call_api(endpoint, text):
             xlations[endpoint] = None \
                     if response.json()['data']['translatedText'].lower() == orig.lower() \
                     else response.json()['data']['translatedText'].lower()
+
+# check for env before continuing
+envset = True
+if os.environ.get('SPANKI_KEY') == None:
+    envset = False
+    print("Environment Variable SPANKI_KEY must be set to rapidapi key")
+    print()
+if os.environ.get('SPANKI_APIS') == None:
+    envset = False
+    print("Environment Variable SPANKI_APIS must be set")
+    print("SPANKI_APIS is a comma delimited set. Supported apis are {supported_apis}")
+    print()
+else:
+    for api in os.environ.get('SPANKI_APIS').split(','):
+        if api not in supported_apis:
+            envset = False
+            print(f'{api} is not a supported api. Supported apis are {supported_apis}')
+            print()
+
+# test for existance of Anki/AnkiConnect and get deckNames
+availdecks = requests.post(url = 'http://localhost:8765', json={"action": "deckNames", "version": 6 }, timeout=10)
+if availdecks.json()['error']:
+    envset = False
+    print( "Anki may not be running or AnkiConnect may not be installed")
+    print()
+deck_name = os.environ.get('SPANKI_DECK_NAME')
+if deck_name == None:
+    envset = False
+    print("Environment Variable SPANKI_DECK_NAME must be set to Anki Deck")
+    print("Example: SPANKI_DECK_NAME=Kenton\'s\ Spanish\ Words")
+    print()
+elif deck_name not in availdecks.json()['result']:
+    envset = False
+    print(f'{deck_name} is not a deck in Anki')
+    print()
+lang=os.environ.get('SPANKI_LANG')
+if lang == None:
+    lang = "es"
+else:
+    lang = lang.lower()
+
+if os.environ.get('SPANKI_NOTE_TYPE') == None:
+    print("Environment variable SPANKI_NOTE_TYPE is not set. Basic will be used.")
+
+sync_on_add = os.environ.get('SPANKI_SYNC_ON_ADD') if os.environ.get('SPANKI_SYNC_ON_ADD') != None else "False"
+
+if envset == False:
+    sys.exit()
+
+# Environment should be good now
 
 try:
     while True:
@@ -85,7 +135,7 @@ try:
 
         # Thread each api call
         threads = []
-        for api in  options.apis:
+        for api in  os.environ.get('SPANKI_APIS').split(','):
             x = threading.Thread(target=call_api, args=(api, orig))
             threads.append(x)
             x.start()
@@ -97,7 +147,7 @@ try:
         # iterate through results from each API call and fill up choices list
         found = 0
         choices = []
-        for api in options.apis:
+        for api in os.environ.get('SPANKI_APIS').split(','):
             if xlations[api]:
                 choices.append(xlations[api])
                 found += 1
@@ -133,7 +183,7 @@ try:
         # add user choice to AnkiConnect instance (must be running)
         add = input('Add to anki? ')
         if add.lower() in ['y', 'yes', 't', 'true']:
-            if options.note_type != "Basic":
+            if os.environ.get('SPANKI_NOTE_TYPE') != "Basic":
                 speech = input('Enter Part of Speech: ')
                 gender = input('Enter Gender: ') if speech.lower() in ['n', 'noun'] else  ""
                 ankiact = {
@@ -141,8 +191,8 @@ try:
                     "version": 6,
                     "params": {
                         "note": {
-                            "deckName": options.deckname,
-                            "modelName": options.note_type,
+                            "deckName": deck_name,
+                            "modelName": os.environ.get('SPANKI_NOTE_TYPE'),
                             "fields": {
                                 "Word": orig,
                                 "Meaning": xlation,
@@ -153,7 +203,7 @@ try:
                                 "allowDuplicate": False,
                                 "duplicateScope": "deck",
                                 "duplicateScopeOptions": {
-                                    "deckName": options.deckname,
+                                    "deckName": deck_name,
                                     "checkChildren": False,
                                     "checkAllModels": False
                                 }
@@ -167,7 +217,7 @@ try:
                     "version": 6,
                     "params": {
                         "note": {
-                            "deckName": options.deckname,
+                            "deckName": deck_name,
                             "modelName": "Basic",
                             "fields": {
                                 "Front": orig,
@@ -177,7 +227,7 @@ try:
                                 "allowDuplicate": False,
                                 "duplicateScope": "deck",
                                 "duplicateScopeOptions": {
-                                    "deckName": options.deckname,
+                                    "deckName": deck_name,
                                     "checkChildren": False,
                                     "checkAllModels": False
                                 }
@@ -188,6 +238,10 @@ try:
 
             ankiresp = requests.post(url = 'http://localhost:8765', json=ankiact, timeout=10)
             print(ankiresp.json())
+            if sync_on_add.lower() not in  ['0', 'false']:
+                ankisync = requests.post(url = "http://localhost:8765", \
+                        json = { "action": "sync", "version": 6}, timeout=30)
+                print(ankisync.json())
 except KeyboardInterrupt:
     print()
     print('Exiting. Goodbye!')

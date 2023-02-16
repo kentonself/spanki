@@ -1,8 +1,10 @@
 # spanki
 
-Command line tool to lookup Spanish words from multiple dictionaries and easily add them to an anki deck (SPanish + ANKI = SPANKI)
+Command line tool to lookup Foreign language words from multiple dictionaries and easily add them to an anki deck
 
-Spanki can use a variety of Spanish-English dictionaries from rapidapi and the user can pick a translation and immediately
+ (Originally developed for Spanish. SPanish + ANKI = SPANKI)
+
+Spanki can use a variety of foreign language dictionaries from rapidapi and the user can pick a translation and immediately
 create a card in an Anki deck for future recall/study. API calls are threaded for faster response.
 
 ## Requirements
@@ -19,14 +21,28 @@ create a card in an Anki deck for future recall/study. API calls are threaded fo
 6. A card type in Anki that contains the field "Word", "Part of Speech", "Meaning" and "Gender"
 7. The AnkiConnect Add-In (https://ankiweb.net/shared/info/2055492159)
 
-## Setup
+## Environment
 
-In the options.py file:
- - Enter your rapidapi key.
- - Enter the name of the deck to add cards to
- - Edit the apis list to include the apis subscribed to
- - If using a note type other than "Basic" change the note_type. Any other note type must include fields 
-    "Word", "Part of Speech", "Meaning", and "Gender". Otherwise the Basic card type is front/back.
+Spanki uses the following environment variables:
+SPANKI_KEY - Mandatory. The key from rapidapi ("X-RapidAPI-Key") for your subscriptions
+SPANKI_APIS - Mandatory A comma separated list of APIs to check
+SPANKI_DECK_NAME - Mandatory. The deck name in Anki to add cards to.
+SPANKI_NOTE_TYPE - Optional. If set Spanki will add fields for gender and part of speech.
+SPANKI_SYNC_ON_ADD - Optional. If set (unless set to 0 or False), will sync with AnkiWeb after each add. 
+                       (Can add significant time for sync)
+SPANKI_LANG - Optional. Language code to be translated. Ex. "es" for Spanish, "it" for Italian, etc.
+                       (Defaults to Spanish. Only tested in Spanish, so YMMV)
+
+Examples:
+```
+export SPANKI_KEY=0123456789abcdef123456789aabcdef123456789abcdef01
+export SPANKI_APIS=mymemory,multi-traduction,long-translator
+export SPANKI_DECK_NAME=Kenton\'s\ Spanish\ Words
+export SPANKI_NOTE_TYPE=Spanish
+export SPANKI_SYNC_ON_ADD=1
+export SPANKI_LANG=es
+```
+
 
 ## Usage
 
@@ -45,16 +61,20 @@ Add to anki? y
 Enter Part of Speech: n
 Enter Gender: m
 {'result': 1676503147588, 'error': None}
-Enter word/phrase to translate (or q to quit): taladro 
-1 from mymemory: blue gum borer, common eucalypt longicorn, eucalyptus borer
-2 from multi-traduction: drill
-3 from long-translator: drill
+Enter word/phrase to translate (or q to quit): lampara
+1 from mymemory: light fixture
+2 from multi-traduction: lamp
+3 from long-translator: lamp
 Enter number choice from above or:
  q to skip adding to anki
- c to concatenate choices : 
+ c to concatenate choices : 2
+Add to anki? y
+Enter Part of Speech: n
+Enter Gender: f
+{'result': 1676553009807, 'error': None}
 ```
 
-(Note that for taladro, you can enter 2 or 3 and add a card for drill, 1 to add a card for blue gum borer, or c to add a card with all the definitions into one card. The mymemory API sometimes has unusual translations for words.)
+(Note that for lampara, you can enter 2 or 3 and add a card for lamp, 1 to add a card for light fixture, or c to add a card with all the definitions into one card. The mymemory API sometimes has unusual translations for words. 'taladro' ('drill") is an interesting example of this.)
 
 ## License
 
