@@ -125,8 +125,6 @@ ankiconnect_url = os.environ.get('SPANKI_ANKICONNECT_URL')
 if ankiconnect_url is None:
     ankiconnect_url = 'http://localhost:8765'
 
-print(ankiconnect_url)
-
 # test for existance of Anki/AnkiConnect and get deckNames
 try:
     availdecks = requests.post(url = ankiconnect_url,\
