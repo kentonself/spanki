@@ -53,32 +53,9 @@ export SPANK_ANKICONNECT_URL=http://remotehost.local:8765
 Run spanky.py from the command line. Enter a word or phrase in Spanish. When translation is returned, spanki can create
 a card and add it to the Anki deck. You can enter the part of speech and gender (for nouns)
 
-## Examples
+## DEMO
 
-```
-$ ./spanki.py
-Enter word/phrase to translate (or q to quit): almendra
-1 from mymemory: almond
-2 from multi-traduction: almond
-3 from long-translator: almond
-Add to anki? y
-Enter Part of Speech: n
-Enter Gender: m
-{'result': 1676503147588, 'error': None}
-Enter word/phrase to translate (or q to quit): lampara
-1 from mymemory: light fixture
-2 from multi-traduction: lamp
-3 from long-translator: lamp
-Enter number choice from above or:
- q to skip adding to anki
- c to concatenate choices : 2
-Add to anki? y
-Enter Part of Speech: n
-Enter Gender: f
-{'result': 1676553009807, 'error': None}
-```
-
-(Note that for lampara, you can enter 2 or 3 and add a card for lamp, 1 to add a card for light fixture, or c to add a card with all the definitions into one card. The mymemory API sometimes has unusual translations for words. 'taladro' ('drill") is an interesting example of this.)
+![](https://github.com/kentonself/spanki/SpankiDemo.gif)
 
 ## License
 

@@ -206,8 +206,8 @@ try:
         # (converting the python list to a python set removes dupliates)
         if found > 1 and len(set(choices)) > 1:
             while True:
-                concat = ' ,'.join(set(choices))
-                concat = re.sub('^ , ', ' ', concat, count=0, flags=0)
+                concat = ', '.join(set(choices))
+                concat = re.sub('^, ', '', concat, count=0, flags=0)
 
                 choice = input('Enter number choice from above or:\n' +\
                                 ' q to skip adding to anki\n' +\
@@ -290,13 +290,19 @@ try:
 
             # Add the card
             ankiresp = requests.post(url = ankiconnect_url, json=ankiact, timeout=10)
-            print(ankiresp.json())
+            if ankiresp.json()['error'] is None:
+                print('Card added successfully!')
+            else:
+                print(ankiresp.json())
 
             # If sync is turned on, sync with AnkiWeb
             if sync_on_add.lower() not in  ['0', 'false']:
                 ankisync = requests.post(url = ankiconnect_url, \
                         json = { "action": "sync", "version": 6}, timeout=30)
-                print(ankisync.json())
+                if ankiresp.json()['error'] is None:
+                    print('Card sync to AnkiWeb success!')
+                else:
+                    print(ankiresp.json())
 
 except KeyboardInterrupt:
 
