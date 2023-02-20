@@ -133,7 +133,7 @@ try:
 except requests.ConnectionError:
     envset = False
     print( "Anki may not be running or AnkiConnect may not be installed")
-    print()
+    exit()
 
 if availdecks.json()['error']:
     envset = False
