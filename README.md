@@ -55,7 +55,7 @@ a card and add it to the Anki deck. You can enter the part of speech and gender 
 
 ## DEMO
 
-![](https://github.com/kentonself/spanki/SpankiDemo.gif)
+![](https://github.com/kentonself/spanki/blob/main/SpankiDemo.gif)
 
 ## License
 
